@@ -7,23 +7,15 @@ Board::Board() {
         float squareX = squareSide * j + BORDER_THICKNESS;
         float squareY = squareSide * i + BORDER_THICKNESS;
         ColorEnum squareColor = (i + j) % 2 ? White : Black;
-        square[i * 8 + j] = Square(squareX, squareY, squareColor);  // Usando índice contínuo
+        squares.push_back(Square(squareX, squareY, squareColor));
       }
     }
 
-    int pieceIndex = 0;
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 8; i++) {
       for (int j = 0; j < 8; j++) {
-        if (square[i * 8 + j].color == Black) {
-          piece[pieceIndex++] = Piece(square[i * 8 + j].x, square[i * 8 + j].y, Red, &square[i * 8 + j]);
-        }
-      }
-    }
-
-    for (int i = 5; i < 8; i++) {
-      for (int j = 0; j < 8; j++) {
-        if (square[i * 8 + j].color == Black) {
-          piece[pieceIndex++] = Piece(square[i * 8 + j].x, square[i * 8 + j].y, Blue, &square[i * 8 + j]);
+        if (squares[i * 8 + j].color == Black && i != 3 && i != 4) {
+          ColorEnum color = (i >= 0 && i < 3)?Red:Blue; 
+          pieces.push_back(Piece(squares[i * 8 + j].x, squares[i * 8 + j].y, color, &squares[i * 8 + j]));
         }
       }
     }
@@ -40,42 +32,32 @@ Board::~Board(){
 }
 
 void Board::dropHandling() {
-    for (int i = 0; i < 8; i++) {
-      for (int j = 0; j < 8; j++) {
-        int index = i * 8 + j;
-        if (square[index].color == Black && square[index].isColliding(selectedPiece->tempx, selectedPiece->tempy) && isValid(square[index])) {
-          *selectedPiece = Piece(square[index].x, square[index].y, selectedPiece->color, &square[index]);
-          currentTurn = (currentTurn == Red) ? Blue : Red;
-          isHolding = false;
-          break;
-        }
+    for (Square &square : squares) {
+      if (square.color == Black && square.isColliding(selectedPiece->tempx, selectedPiece->tempy) && isValid(square)) {
+        *selectedPiece = Piece(square.x, square.y, selectedPiece->color, &square);
+        currentTurn = (currentTurn == Red) ? Blue : Red;
+        isHolding = false;
+        break;
       }
     }
 }
 
 
 void Board::holdHandling (){
-  for(int i = 0; i < 6; i++){
-    for(int j = 0; j < 4; j++) {
-      int index = i * 4 + j;
-      if(piece[index].isColliding(GetMouseX(), GetMouseY())) {
-        if(piece[index].color == currentTurn) {
-          isHolding = true;
-          selectedPiece = &piece[index];
-        }
+  for(Piece &piece : pieces){
+    if(piece.isColliding(GetMouseX(), GetMouseY())) {
+      if(piece.color == currentTurn) {
+        isHolding = true;
+        selectedPiece = &piece;
       }
     }
   }
 }
 
 bool Board::isValid(Square square){
-    for(int i = 0; i < 6; i++){
-      for(int j = 0; j < 4; j++){
-        int index = i * 4 + j;
-        if((piece[index].square->x == square.x) &&(piece[index].square->y == square.y)){
-          return false;
-        }
-      }
+    for(Piece &piece : pieces){
+      if((piece.square->x == square.x) &&(piece.square->y == square.y))
+        return false;
     }
     return true;
 }
@@ -92,12 +74,9 @@ void Board::movementHandling(){
 void Board::Draw(){ 
     BeginDrawing();
     DrawTexture(table, 0, 0, WHITE);
-    for (int i = 0; i < 6; i++){
-      for (int j = 0; j < 4; j++){
-        int index = i * 4 + j;
-        Texture2D piecetexture = (piece[index].color == Red)?redpiece:bluepiece;
-        if (piece[index].alive) DrawTexture(piecetexture, piece[index].tempx, piece[index].tempy, WHITE);
-      }
+    for (Piece piece : pieces){
+        Texture2D piecetexture = (piece.color == Red)?redpiece:bluepiece;
+        if (piece.isAlive) DrawTexture(piecetexture, piece.tempx, piece.tempy, WHITE);
     }
     EndDrawing();
 }

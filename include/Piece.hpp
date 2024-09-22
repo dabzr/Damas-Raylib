@@ -25,7 +25,7 @@ class Piece{
   float x, y;
   float tempx, tempy;
   ColorEnum color;
-  bool alive = true;
+  bool isAlive = true;
   Square *square;
   bool isColliding(float posX, float posY);
 };

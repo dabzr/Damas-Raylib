@@ -1,12 +1,13 @@
 #include "Piece.hpp"
 #include "raylib.h"
-
+#include <vector>
+using namespace std;
 class Board {
   Texture2D table;
   Texture2D redpiece;
   Texture2D bluepiece;
-  Square square[64];
-  Piece piece[24];
+  vector<Square> squares;
+  vector<Piece> pieces;
   const int squareSide = SIZESQ;
   ColorEnum currentTurn = Red;
   bool isHolding = false;
