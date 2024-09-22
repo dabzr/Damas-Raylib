@@ -17,6 +17,7 @@ class Square {
   float x, y;
   ColorEnum color;
   bool isColliding(float posX, float posY);
+  bool operator==(const Square& rhs) {return (x == rhs.x) && (y == rhs.y);}
 };
 
 

@@ -44,8 +44,7 @@ void Game::holdHandling (){
 
 bool Game::isValid(Square square){
     for(Piece piece : pieces){
-      if((piece.square->x == square.x) &&(piece.square->y == square.y) && piece.isAlive)
-        return false;
+      if(*piece.square == square && piece.isAlive) return false;
     }
     return true;
 }
