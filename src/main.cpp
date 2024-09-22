@@ -1,13 +1,13 @@
 #include <raylib.h>
-#include "../include/Board.hpp"
+#include "../include/Game.hpp"
 
 int main (){
   SetTargetFPS(60);
   InitWindow(WINDOW_HEIGHT, WINDOW_WIDTH, "Damas");
   SetExitKey(KEY_ESCAPE);
-  Board board = Board();
+  Game damas = Game();
   while(!WindowShouldClose()){
-    board.Tick();
+    damas.Tick();
   }
   CloseWindow();
 }
