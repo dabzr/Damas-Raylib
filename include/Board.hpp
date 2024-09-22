@@ -5,8 +5,8 @@ class Board {
   Texture2D table;
   Texture2D redpiece;
   Texture2D bluepiece;
-  Square square[8][8];
-  Piece piece[6][4];
+  Square square[64];
+  Piece piece[24];
   const int squareSide = SIZESQ;
   ColorEnum currentTurn = Red;
   bool isHolding = false;

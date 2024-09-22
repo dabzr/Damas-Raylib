@@ -1,32 +1,33 @@
 #include "../include/Board.hpp"
 #include <raylib.h>
 
-Board::Board(){
-    for(int i = 0; i < 8; i++){
-      for (int j = 0; j < 8; j++){
+Board::Board() {
+    for(int i = 0; i < 8; i++) {
+      for (int j = 0; j < 8; j++) {
         float squareX = squareSide * j + BORDER_THICKNESS;
         float squareY = squareSide * i + BORDER_THICKNESS;
-        ColorEnum squareColor = (i+j)%2?White:Black;
-        square[i][j] = Square(squareX, squareY, squareColor);
+        ColorEnum squareColor = (i + j) % 2 ? White : Black;
+        square[i * 8 + j] = Square(squareX, squareY, squareColor);  // Usando índice contínuo
       }
     }
-    
-    for (int i = 0; i < 3; i++){
-      for (int j = 0; j < 8; j++){
-        if(square[i][j].color == Black){
-          piece[i][j/2] = Piece(square[i][j].x, square[i][j].y, Red, &square[i][j]);
+
+    int pieceIndex = 0;
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 8; j++) {
+        if (square[i * 8 + j].color == Black) {
+          piece[pieceIndex++] = Piece(square[i * 8 + j].x, square[i * 8 + j].y, Red, &square[i * 8 + j]);
         }
       }
     }
 
-    for (int i = 5; i < 8; i++){
-      for (int j = 0; j < 8; j++){
-        if(square[i][j].color == Black){
-          piece[i-2][j/2] = Piece(square[i][j].x, square[i][j].y, Blue, &square[i][j]);
+    for (int i = 5; i < 8; i++) {
+      for (int j = 0; j < 8; j++) {
+        if (square[i * 8 + j].color == Black) {
+          piece[pieceIndex++] = Piece(square[i * 8 + j].x, square[i * 8 + j].y, Blue, &square[i * 8 + j]);
         }
-
       }
-    } 
+    }
+
     table = LoadTexture("assets/tab.png");
     redpiece = LoadTexture("assets/pec.png");
     bluepiece = LoadTexture("assets/pecb.png");
@@ -38,26 +39,29 @@ Board::~Board(){
   UnloadTexture(bluepiece);
 }
 
-void Board::dropHandling(){
-  for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 8; j++) {
-      if (square[i][j].color == Black && square[i][j].isColliding(selectedPiece->tempx, selectedPiece->tempy) && isValid(square[i][j])) {
-            *selectedPiece = Piece(square[i][j].x, square[i][j].y, selectedPiece->color, &square[i][j]);
-            currentTurn = (currentTurn == Red)? Blue : Red;
-            isHolding = false;
-            break;
+void Board::dropHandling() {
+    for (int i = 0; i < 8; i++) {
+      for (int j = 0; j < 8; j++) {
+        int index = i * 8 + j;
+        if (square[index].color == Black && square[index].isColliding(selectedPiece->tempx, selectedPiece->tempy) && isValid(square[index])) {
+          *selectedPiece = Piece(square[index].x, square[index].y, selectedPiece->color, &square[index]);
+          currentTurn = (currentTurn == Red) ? Blue : Red;
+          isHolding = false;
+          break;
         }
       }
     }
 }
 
+
 void Board::holdHandling (){
   for(int i = 0; i < 6; i++){
     for(int j = 0; j < 4; j++) {
-      if(piece[i][j].isColliding(GetMouseX(), GetMouseY())) {
-        if(piece[i][j].color == currentTurn) {
+      int index = i * 4 + j;
+      if(piece[index].isColliding(GetMouseX(), GetMouseY())) {
+        if(piece[index].color == currentTurn) {
           isHolding = true;
-          selectedPiece = &piece[i][j];
+          selectedPiece = &piece[index];
         }
       }
     }
@@ -67,7 +71,8 @@ void Board::holdHandling (){
 bool Board::isValid(Square square){
     for(int i = 0; i < 6; i++){
       for(int j = 0; j < 4; j++){
-        if((piece[i][j].square->x == square.x) &&(piece[i][j].square->y == square.y)){
+        int index = i * 4 + j;
+        if((piece[index].square->x == square.x) &&(piece[index].square->y == square.y)){
           return false;
         }
       }
@@ -89,10 +94,9 @@ void Board::Draw(){
     DrawTexture(table, 0, 0, WHITE);
     for (int i = 0; i < 6; i++){
       for (int j = 0; j < 4; j++){
-        if (piece[i][j].color == Red && piece[i][j].alive)
-          DrawTexture(redpiece, piece[i][j].tempx, piece[i][j].tempy, WHITE);
-        if (piece[i][j].color == Blue && piece[i][j].alive)
-          DrawTexture(bluepiece, piece[i][j].tempx, piece[i][j].tempy, WHITE);
+        int index = i * 4 + j;
+        Texture2D piecetexture = (piece[index].color == Red)?redpiece:bluepiece;
+        if (piece[index].alive) DrawTexture(piecetexture, piece[index].tempx, piece[index].tempy, WHITE);
       }
     }
     EndDrawing();
